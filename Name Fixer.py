@@ -9,7 +9,8 @@
 # each word before it with a list of known version descriptions. If they match, store them in order of what word came
 # first in the entire string.
 # 6. find the movie name by grouping any parts of the string that were not grouped by step 5 and come before the date.
-# 7. place them in order in a string and rename the directory to that string.
+# 7. place groups order in a string (with divider '-' between section 2 and 3) and check all formatting is correct.
+# 8. rename the directory to the string.
 #
 # By Rhys Jones
 
@@ -30,6 +31,7 @@ for name in files:
 # each word before it with a list of known version descriptions. If they match, store them in order of what word came
 # first in the entire string.
 # 6. find the movie name by grouping any parts of the string that were not grouped by step 5 and come before the date.
-# 7. place them in order in a string and rename the directory to that string.
+# 7. place groups order in a string (with divider '-' between section 2 and 3) and check all formatting is correct.
+# 8. rename the directory to the string.
 
 

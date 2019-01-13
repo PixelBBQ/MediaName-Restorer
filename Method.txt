@@ -1,3 +1,16 @@
+The directory name is split into 4 sections.
+For example 'Blade Runnner (1982) - [1080p][BR] Final Cut' is split into the following sections:
+
+1 - 'Blade Runner' - movie name
+2 - '(1982)'       - date
+3 - '[1080p][BR]'  - quality
+4 - 'Final Cut'    - version
+
+The divider ' - ' is put between sections 2 and 3.
+
+
+The following is the method I will use to create the program:
+
 # 1. place old directory name as a txt file inside the directory.
 # 2. separate all parts of string with either a space or a dot dividing them.
 # 3. find quality through grouping a number 3-4 digits long followed by a 'p'.
@@ -6,4 +19,5 @@
 # each word before it with a list of known version descriptions. If they match, store them in order of what word came
 # first in the entire string.
 # 6. find the movie name by grouping any parts of the string that were not grouped by step 5 and come before the date.
-# 7. place them in order in a string and rename the directory to that string.
+# 7. place groups order in a string (with divider '-' between section 2 and 3) and check all formatting is correct.
+# 8. rename the directory to the string.
