@@ -12,7 +12,7 @@ The divider ' - ' is put between sections 2 and 3.
 The following is the method I will use to create the program:
 
 # 1. place old directory name as a txt file inside the directory.
-# 2. separate all parts of string with either a space or a dot dividing them.
+# 2. separate all parts of string with either a space or a dot dividing them. Remove spaces, dots and brackets from strings.
 # 3. find quality through grouping a number 3-4 digits long followed by a 'p'.
 # 4. find date by searching for a group of 4 digits, if two groups, choose the group closest to the end of the string.
 # 5. find the version by first searching for the word 'cut' if no word exists, move to step 6. If cut exists, check

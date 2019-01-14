@@ -15,11 +15,18 @@
 # By Rhys Jones
 
 import os
+import re
 
-files = os.listdir("E:/Rhys/Documents/Python/Projects/Name Fixer/names")
-for name in files:
+directories = os.listdir("C:/Users/Rhys/Documents/Python/Projects/Movie-Name-Fixer-initial-build/names")
+for name in directories:
     print(name)
-    f = open("E:/Rhys/Documents/Python/Projects/Name Fixer/new names/" + name + ".txt", 'w')
+    f = open("./names/" + name + "/" + name + ".txt", 'w')
+    f.close()
+    name.replace('[', '')
+    folder = re.split("[ .]", name)
+    print (folder)
+
+    f = open("C:/Users/Rhys/Documents/Python/Projects/Movie-Name-Fixer-initial-build/new names/" + name + ".txt", 'w')
     f.close()
 
 
