@@ -14,20 +14,51 @@
 #
 # By Rhys Jones
 
-import os
-import re
+# Imports
+import os       # import os for file path and advanced editing.
+import re       # import re for string literals.
+
+# Global Arrays
+versions = ['ultimate', 'directors', "director's", 'final']     # stores version names to be used later.
+brVer = ['bluray', 'brrip', 'brdvd']                            # stores BluRay version names to be used later.
+sections = ['', '', '', '', '']
+
 
 directories = os.listdir("C:/Users/Rhys/Documents/Python/Projects/Movie-Name-Fixer-initial-build/names")
 for name in directories:
     print(name)
-    f = open("./names/" + name + "/" + name + ".txt", 'w')
+    f = open("./names/" + name + "/" + name + ".txt", 'w')      # creates a text file of the old name in the directory.
     f.close()
-    name.replace('[', '')
-    folder = re.split("[ .]", name)
-    print (folder)
 
-    f = open("C:/Users/Rhys/Documents/Python/Projects/Movie-Name-Fixer-initial-build/new names/" + name + ".txt", 'w')
-    f.close()
+    for i in ['[', ']']:
+        name = name.replace(i, '')      # delete square brackets in the name.
+    name = re.split("[ .]", name)       # split the name into a list where spaces and dots were dividing it.
+    print (name)
+
+
+    # find date
+    noDate = 0
+    for currentSection in name:
+        if len(currentSection) == 4 and all(char.isdigit() for char in currentSection):
+            noDate += 1
+            sections[1] = currentSection
+            if noDate > 1:
+                sections[0] = name[name.index(str(currentSection)) - 1]
+
+
+    # find version
+    for currentSection in name:
+        if currentSection.isalpha() == 'cut':
+            for sect in range(0,name.index(str(currentSection))):
+                if name[name.index(str(currentSection)) - sect].isalpha() == any(versions):
+
+
+
+    # find quality
+
+
+#    f = open("C:/Users/Rhys/Documents/Python/Projects/Movie-Name-Fixer-initial-build/new names/" + name + ".txt", 'w')
+#    f.close()
 
 
 # 1. place old directory name as a txt file inside the directory.
