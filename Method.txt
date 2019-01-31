@@ -21,3 +21,19 @@ The following is the method I will use to create the program:
 # 6. find the movie name by grouping any parts of the string that were not grouped by step 5 and come before the date.
 # 7. place groups order in a string (with divider '-' between section 2 and 3) and check all formatting is correct.
 # 8. rename the directory to the string.
+#
+#
+#
+# Edit for after 1.0:
+# 1. Make sure that the quality section is in the correct order since there could be two strings in it.
+# 2. 
+#
+#
+#
+# Other bits:
+# 1. If there are parts in front of the name that are separated from the name, make sure they are processed and do not end
+# up in the movie name section.
+# 2. If the automated process does not work, create a more manual, targetted option where the user enters as much info as
+# they would like about the directory they have selected. The program will then solve the rest of the information and
+# format it.
+# 3. 
