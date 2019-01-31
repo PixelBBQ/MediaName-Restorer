@@ -19,13 +19,15 @@ import os       # import os for file path and advanced editing.
 import re       # import re for string literals.
 
 # Global Arrays
-versions = ['ultimate', 'directors', "director's", 'final']     # stores version names to be used later.
+versions = ['ultimate', 'directors', "director's", 'final', 'cut']     # stores version names to be used later.
 brVer = ['bluray', 'brrip', 'brdvd']                            # stores BluRay version names to be used later.
-sections = ['', '', '', '', '']
 
 
 directories = os.listdir("C:/Users/Rhys/Documents/Python/Projects/Movie-Name-Fixer-initial-build/names")
 for name in directories:
+    sections = ['', '', '', '']
+    remove = []
+
     print(name)
     f = open("./names/" + name + "/" + name + ".txt", 'w')      # creates a text file of the old name in the directory.
     f.close()
@@ -40,24 +42,51 @@ for name in directories:
     noDate = 0
     for currentSection in name:
         if len(currentSection) == 4 and all(char.isdigit() for char in currentSection):
-            noDate += 1
             sections[1] = currentSection
-            if noDate > 1:
-                sections[0] = name[name.index(str(currentSection)) - 1]
+            remove.append(name.index(currentSection))
+
 
 
     # find version
     for currentSection in name:
-        if currentSection.isalpha() == 'cut':
-            for sect in range(0,name.index(str(currentSection))):
-                if name[name.index(str(currentSection)) - sect].isalpha() == any(versions):
+        if currentSection.lower() == 'cut':
+            for sect in range(0, name.index(currentSection) + 1):
+                for version in versions:
+                    if name[name.index(currentSection) - sect].lower() == version:
+                        sections[3] = (name[name.index(currentSection) - sect] + " " + sections[3])
+                        remove.append(name.index(currentSection) - sect)
 
+            sections[3] = sections[3][:-1]
 
 
     # find quality
+    for currentSection in name:
+        if len(currentSection) == 5 or len(currentSection) == 4:
+            if all(char.isdigit() for char in currentSection[:-1]) and currentSection[-1:].lower() == 'p':
+                sections[2] += (currentSection + ' ')
+                remove.append(name.index(currentSection))
 
 
-#    f = open("C:/Users/Rhys/Documents/Python/Projects/Movie-Name-Fixer-initial-build/new names/" + name + ".txt", 'w')
+    # find quality
+    for currentSection in name:
+        if currentSection.lower() in brVer:
+            sections[2] += (currentSection + ' ')
+
+
+
+    # remove used list elements to find name
+    for currentSection in name:
+        if name.index(currentSection) not in remove:
+            sections[0] += (currentSection + ' ')
+
+
+    # format
+
+
+    # apply the new name
+    print(sections)
+#    f = open("C:/Users/Rhys/Documents/Python/Projects/Movie-Name-Fixer-initial-build/new names/" +
+#             all((section for section in sections) + ' ') + ".txt", 'w')
 #    f.close()
 
 
