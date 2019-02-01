@@ -24,17 +24,22 @@ The following is the method I will use to create the program:
 #
 #
 #
-# Edit for after 1.0:
+# Edit for 1.0:
 # 1. Comment fully and clean code.
+# 2. Make sure .txt file inside directory does not get overwritten.
 # 2. Make sure that the quality section is in the correct order since there could be two strings in it.
 # 3. Add file to save log to for debugging outside of terminal.
+# 4. Include configuration file to set default root directory.
 #
 #
 #
 # Other bits:
 # 1. If there are parts in front of the name that are separated from the name, make sure they are processed and do not end
 # up in the movie name section.
-# 2. If the automated process does not work, create a more manual, targetted option where the user enters as much info as
+#
+#
+#
+# Possible additions:
+# 1. If the automated process does not work, create a more manual, targetted option where the user enters as much info as
 # they would like about the directory they have selected. The program will then solve the rest of the information and
 # format it.
-#

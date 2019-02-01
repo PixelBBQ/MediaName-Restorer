@@ -1,16 +1,11 @@
 # Fixes names of Movies folders on my external movie drive. Works with most pirate bay name formats but is
 # obviously not programmed to work on a gloriously stupid name format.
 #
-# 1. place old directory name as a txt file inside the directory.
-# 2. separate all parts of string with either a space or a dot dividing them.
-# 3. find quality through grouping a number 3-4 digits long followed by a 'p'.
-# 4. find date by searching for a group of 4 digits, if two groups, choose the group closest to the end of the string.
-# 5. find the version by first searching for the word 'cut' if no word exists, move to step 6. If cut exists, check
-# each word before it with a list of known version descriptions. If they match, store them in order of what word came
-# first in the entire string.
-# 6. find the movie name by grouping any parts of the string that were not grouped by step 5 and come before the date.
-# 7. place groups order in a string (with divider '-' between section 2 and 3) and check all formatting is correct.
-# 8. rename the directory to the string.
+# Edit for 1.0:
+# 1. Comment fully and clean code.
+# 2. Make sure .txt file inside directory does not get overwritten.
+# 2. Make sure that the quality section is in the correct order since there could be two strings in it.
+# 3. Add file to save log to for debugging outside of terminal.
 #
 # By Rhys Jones
 
@@ -19,23 +14,32 @@ import os       # import os for file path and advanced editing.
 import re       # import re for string literals.
 
 # Global Arrays
-versions = ['ultimate', 'directors', "director's", 'final', 'cut']     # stores version names to be used later.
-brVer = ['bluray', 'brrip', 'brdvd']                            # stores BluRay version names to be used later.
+versions = ['ultimate', 'directors', "director's", 'final', 'cut']      # stores version names to be used later.
+brVer = ['bluray', 'brrip', 'brdvd']                                    # stores BluRay version names to be used later.
 
 
 # Global Variables
-baseDir = "C:/Users/Rhys/Documents/Python/Projects/Movie-Name-Fixer-initial-build/names"
+baseDir = "C:/Users/Rhys/Documents/Python/Projects/Movie-Name-Fixer-initial-build/names"  # root directory path string.
 
 
-directories = os.listdir(baseDir)
-for directory in directories:
-    sections = ['', '', '', '']
-    remove = []
-    newDir = ''
+directories = os.listdir(baseDir)           # lists the directories inside of the root directory path.
+for directory in directories:               # loops for each directory inside of the list of directories.
 
-    print(directory)
-    f = open("./names/" + directory + "/" + directory + ".txt", 'w')   # create text file of old name in the directory.
-    f.close()
+    # Per directory arrays
+    sections = ['', '', '', '']             # holds structure fof the 4 sections of the new name.
+    remove = []                             # will contain indexes that have been placed into the sections list.
+
+    # Per directory variables
+    newDir = ''                             # holds a string of the final directory name.
+
+    # debugging
+    print(directory)                        # prints directory variable for debugging.
+
+    # creates a text file of the original name of the directory, before the program ran.
+    if not os.path.exists(os.path.join(baseDir, directory, '/MNF')):
+        os.makedirs(os.path.join(baseDir, directory, '/MNF'))
+        f = open(baseDir + '/' + directory + '/' + directory + ".txt", 'w')   # create text file of old name in the directory.
+        f.close()
 
     for i in ['[', ']']:
         name = directory.replace(i, '')      # delete square brackets in the name.
@@ -44,7 +48,6 @@ for directory in directories:
 
 
     # find date
-    noDate = 0
     for currentSection in name:
         if len(currentSection) == 4 and all(char.isdigit() for char in currentSection):
             sections[1] = ('(' + currentSection + ') - ')
@@ -100,15 +103,8 @@ for directory in directories:
     os.rename(os.path.join(baseDir, directory),
               os.path.join(baseDir, newDir))
 
-# 1. place old directory name as a txt file inside the directory.
-# 2. separate all parts of string with either a space or a dot dividing them.
-# 3. find quality through grouping a number 3-4 digits long followed by a 'p'.
-# 4. find date by searching for a group of 4 digits, if two groups, choose the group closest to the end of the string.
-# 5. find the version by first searching for the word 'cut' if no word exists, move to step 6. If cut exists, check
-# each word before it with a list of known version descriptions. If they match, store them in order of what word came
-# first in the entire string.
-# 6. find the movie name by grouping any parts of the string that were not grouped by step 5 and come before the date.
-# 7. place groups order in a string (with divider '-' between section 2 and 3) and check all formatting is correct.
-# 8. rename the directory to the string.
-
-
+# Edit for 1.0:
+# 1. Comment fully and clean code.
+# 2. Make sure .txt file inside directory does not get overwritten.
+# 2. Make sure that the quality section is in the correct order since there could be two strings in it.
+# 3. Add file to save log to for debugging outside of terminal.
