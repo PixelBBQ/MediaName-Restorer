@@ -1,0 +1,6 @@
+# Stops selected items from being included in git.
+# This file is part of a project: https://github.com/PixelBBQ/Movie-Name-Fixer
+# By Kiweezi
+
+# Ignore the json file containing a key for the API.
+/key.json
