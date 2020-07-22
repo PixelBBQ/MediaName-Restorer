@@ -37,7 +37,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 ## Latest Version
 
 ### 0.2.0 - 2020-07-22
-**Powershell Re-write**
+#### Powershell Re-write
 Create entirely new Powershell script which uses OMDb's API for searches.
 
 ### Changes:
