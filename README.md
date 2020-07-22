@@ -1,23 +1,49 @@
-# Movie-Name-Fixer
-Fixes names of Movies folders on my external movie drive. Works with most pirate bay name formats but is obviously not programmed to work on a gloriously stupid name format.
+# Media Name Restorer
 
-### First stable build 0.9 - beta ###
+## Description
+Corrects titles for folders containing entertainment media like movies and shows.
+Queries OMDb's API for details on the media based on what information the incorrect title currently displays.
 
-# Changelog:
-- Formats pirate movie names.
-- Changes the directory name.
+The program must be used on folders. The directory names must hold some data to search movies or shows contained in OMDb.
+Functions best when provided a similar title and date of release for the media.
 
+You must have an OMDb API key, which you can get from [OMDb API](https://www.omdbapi.com/apikey.aspx).
 
-# Future changes:
-For 1.0 release:
-- 1. Comment fully and clean code.
-- 2. Make sure .txt file inside directory does not get overwritten.
-- 2. Make sure that the quality section is in the correct order since there could be two strings in it.
-- 3. Add file to save log to for debugging outside of terminal.
+---
 
-Other bits:
-- 1. If there are parts in front of the name that are separated from the name, make sure they are processed and do not end
-up in the movie name section.
-- 2. If the automated process does not work, create a more manual, targetted option where the user enters as much info as
-they would like about the directory they have selected. The program will then solve the rest of the information and
-format it.
+## Index
+
+<!--toc-start-->
+* [Setup](#setup)
+* [Usage](#usage)
+* [Latest Version](#latest-version)
+<!--toc-end-->
+
+---
+
+## Setup
+- Get an API key from [OMDb API](https://www.omdbapi.com/apikey.aspx).
+- Download and extract the Zip file from GitHub.
+- Move the extracted child folder ```\_restore\``` into the directory containing the incorrect media names.
+- Make sure you have an unrestricted execution policy set in powershell:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+```
+
+## Usage
+- Right click the script file ```restore-details.ps1```, select ```Run with PowerShell```.
+- The program will ask for an OMDb API Key on first run, after which it will remember it.
+
+## Latest Version
+
+### 0.2.0 - 2020-07-22
+**Powershell Re-write**
+Create entirely new Powershell script which uses OMDb's API for searches.
+
+### Changes:
+- Replaced Python script for Powershell script.
+- Added OMDb API queries to find more accurate results.
+- Now ignores folders that have been fixed and contain 'details.txt' files.
+
+### Fixes:
+- Prevents Windows folder naming restriction errors.

@@ -1,14 +1,14 @@
-# Fixes names of movie folders in the target directory.
+# Fixes names of media folders in the target directory.
 #
-# The project can be found here: https://github.com/PixelBBQ/Movie-Name-Fixer
+# The project can be found here: https://github.com/PixelBBQ/MediaName-Restorer
 # By Kiweezi: https://github.com/kiweezi
 #
 
 
 # -- Global Variables --
 
-# The directory that contains the movie folders.
-$moviesDir = $PSScriptRoot
+# The directory that contains the media folders.
+$mediaDir = "$($PSScriptRoot)..\"
 
 # The details for OMDb's API.
 $apiURL = "http://www.omdbapi.com/"
@@ -51,7 +51,7 @@ function Get-APIkey {
 
                 # If the response returns true then the API is ready to use.
                 if ($apiResult.Response -eq $true) {
-                    Write-Host "API key provided passed with movie title: $($apiResult.Title)."
+                    Write-Host "API key provided passed with media title: $($apiResult.Title)."
 
                     # If the json file has not been updated, update it.
                     if ($jsonKey -ne $apikey) {
@@ -140,7 +140,7 @@ function Get-FolderDate {
     While ($continue -eq $false) {
         # Find 4 digits in a row and check them.
         if ($folderStr -match "([0-9]{4}).*") {
-            # If the numbers do NOT mean the resolution of the movie, continue.
+            # If the numbers do NOT mean the resolution of the media, continue.
             if (-not ($folderStr -match "$($matches[1])p")) {
                 # Store the possible date.
                 $possibleDates += $matches[1]
@@ -162,7 +162,7 @@ function Get-FolderDate {
 }
 
 function Get-FolderName {
-    # Extract a movie name from the folder name.
+    # Extract a media name from the folder name.
 
     param (
         # The string of the folder name.
@@ -181,50 +181,51 @@ function Get-FolderName {
 }
 
 function Get-FolderString {
-    # Separates movie details from the folder name.
+    # Separates media details from the folder name.
 
     param (
         # The target folder string.
         $dirString
     )
-    
-    # Create a hashtable to extract the movie details to.
-    $dirDetails = @{
-        Name = "";
-        Date = "";
-    }
 
     # Remove unnecessary characters.
     $cleanStr = $dirString.replace(".", " ")
 
-    # Get the date of the movie to query from folder name.
-    $dirDetails.Date = Get-FolderDate $cleanStr
-    # Get the name of the movie to query from the folder string.
-    $dirDetails.Name = Get-FolderName $cleanStr $dirDetails.Date
+    # Create a hashtable to extract the media details to.
+    $dirDetails = @{}
+    # Get the date of the media to query from folder name.
+    $dirDetails["Date"] = Get-FolderDate $cleanStr
+    # Get the name of the media to query from the folder string.
+    $dirDetails["Title"] = Get-FolderName $cleanStr $dirDetails.Date
     
+    # Log the findings.
+    Write-Host "Original folder name: $($dirString)"
+    Write-Host "Extracted title: $($dirDetails.Title)"
+    Write-Host "Extracted date: $($dirDetails.Date)`n"
+
     # Return the hashtable of directory details to be queried.
     $dirDetails
 }
 
 
-function Find-MovieDetails {
+function Find-MediaDetails {
     # Uses the details from the string to query OMDb api to fill in the gaps.
 
     param (
-        # The movie details that will be used to query the OMDb's API.
+        # The media details that will be used to query the OMDb's API.
         $query,
         # The key to use the API.
         $apikey
     )
 
-    # Split the movie title into each word.
+    # Split the media title into each word.
     $titleSubStrs = $query.Title -split' '
 
-    # Find a list of movies to compare to.
+    # Find a list of medias to compare to.
     # Loop through each of the title parts.
     foreach ($titlePart in $titleSubStrs) {
-        # Search for the first word of the movie title and the date to match through OMDb's API.
-        $searchResult = Invoke-RestMethod "$($apiURL)?apikey=$($testKey)&s=$($titlePart)&y=$($query.Date)"
+        # Search for the first word of the media title and the date to match through OMDb's API.
+        $searchResult = Invoke-RestMethod "$($apiURL)?apikey=$($apikey)&s=$($titlePart)&y=$($query.Date)"
 
         # If the response from the query is true, break the loop.
         if ($searchResult.response -eq $true) {
@@ -235,37 +236,122 @@ function Find-MovieDetails {
         }
     }
 
-    # Stores all the titles from the search results.
-    $apiTitles = $selectedResult.search.title
-    # Create an empty list to contain scores to compare to later.
-    $scores = @{}
+    # Log the selected api result.
+    Write-Output "The selected api result to search through is as follows:"
+    Write-Output "$($selectedResult.search)`n"
 
-    # Score each title found in the search.
-    foreach ($title in $apiTitles) {
-        
+    # If the selected result only contains one result then return the details of this.
+    if ($selectedResult.totalResults -le 1) {
+        $allDetails = $selectedResult.search
+    }
+    # If there is more than one result, find the most accurate media title.
+    elseif ($selectedResult.totalResults -gt 1) {
+
+        # Remove unwanted special characters from the title.
+        $queryTitle = $query.Title -replace "[^a-zA-Z\d]"
+        # Split the media title into each word.
+        $titleSubStrs = $queryTitle -split' '
+
+        # Stores all the titles from the search results.
+        $apiTitles = $selectedResult.search.title
+        # Create an empty hashtable to contain scores to compare to later.
+        $scores = @{}
+
+        # Score each title found in the search.
+        foreach ($apiTitle in $apiTitles) {
+            # Remove unwanted special characters from the title.
+            $cleanAPItitle = $apiTitle -replace "[^a-zA-Z\d]"
+            # Split the title into it's substring words.
+            $apiWords = $cleanAPItitle -split ' '
+
+            # Try matching each word against the provided media title.
+            foreach ($apiWord in $apiWords) {
+                # If the word from the api title matches the title on the folder, score a point.
+                if ($titleSubStrs -contains $apiWord) {
+
+                    # Get the imdb ID of the selected omdb media.
+                    $testID = ($selectedResult.search | Where-Object { $_.Title -eq $apiTitle }).imdbID
+
+                    # If the score property already exists then add to it.
+                    if ($scores[$testID]) { $scores[$testID] = $scores[$testID] + 1 }
+                    # Otherwise, initiate the score under the imdbID.
+                    else { $scores.Add($testID, 1) }
+                }
+            }
+        }
+
+        # Find the highest scoring title's imdb ID.
+        $imdbID = ($scores.GetEnumerator() | Sort-Object Value | Select-Object -Last 1).Name
+        # Select the correct media details by using the imdb ID found.
+        $allDetails = $selectedResult.search | Where-Object { $_.imdbID -eq $imdbID }
     }
 
+    # Log the findings.
+    Write-Output "Selected most accurate movie details:" 
+    Write-Output "$($allDetails)`n"
+
+    # Create an empty hashtable to store the raw media details.
+    $rawDetails = @{}
+    # Store the media title and date of release.
+    $rawDetails.Add("Title", $allDetails.Title)
+    $rawDetails.Add("Year", $allDetails.Year)
+
+    # Return the media details that omdb has found.
+    return $rawDetails
 }
 
 
-function Format-MovieDetails {
-    # Arrange the movie name details into the correct format.
+function Format-MediaDetails {
+    # Arrange the media name details into the correct format.
 
     param (
-        OptionalParameters
+        # Contains the media details found by the api.
+        $rawDetails
     )
     
-    
+    # Make easier access variables.
+    $title = $rawDetails."Title"
+    $year = $rawDetails."Year"
 
+    # Create the new folder name string from the media details.
+    $newString = "$($title) ($($year))"
+    # Format for Windows file naming convensions.
+    # Take out any colons and replace with a hyphon
+    $newString = $newString -replace (":", " -")
+
+    # Log the findings.
+    Write-Host "Created new folder name: $($newString)"
+
+    # Return the new folder name.
+    return $newString
 }
 
 
 function Set-FolderString {
+    # Set the new name of the folder.
+
     param (
-        OptionalParameters
+        # The name the folder currently has.
+        $currentDir,
+        # The new folder name.
+        $newName
     )
 
+    # If there is no newName then do not rename the folder.
+    if ($newName -ne "") {
+        # Rename the folder.
+        Rename-Item -LiteralPath "$($mediaDir)\$($currentDir)\" -NewName $newName -PassThru
+    }
 
+    # Test if the process worked.
+    if (Test-Path -Path "$($mediaDir)\$($newName)") {
+        # Create a file to indicate the folder has been fixed.
+        New-Item -Path "$($mediaDir)\$($newName)\" -Name "fixed.txt" -ItemType "file"
+        # Log the success of the folder rename.
+        Write-Host "Folder successfully renamed:`nOLD: $($currentDir)`nNEW: $($newName)`n"
+    } else {
+        Write-Host "Folder failed to be renamed.`n"
+    }
 }
 
 
@@ -274,22 +360,23 @@ function Set-FolderString {
 
 function Start-Main {
     # Calls the rest of the commands in the script.
-    
-    # Loop through each movie directory 
-    foreach ($dirString in (Get-ChildItem $moviesDir).Name) {
-        # If the directory has not been fixed before, run the program to fix it.
-        if (-not (Test-Path "$($moviesDir)$($dirString)fixed.txt")) {
 
-            # Get's the key for the OMDb api.
-            $apikey = Get-APIkey
-            # Separates movie details from the folder name.
+    # Get's the key for the OMDb api.
+    $apikey = Get-APIkey
+
+    # Loop through each media directory 
+    foreach ($dirString in (Get-ChildItem -Path $mediaDir -Directory).Name) {
+        # If the directory has not been fixed before, run the program to fix it.
+        if (-not (Test-Path "$($mediaDir)$($dirString)fixed.txt" -or Test-Path "$($mediaDir)$($dirString)restore-details.ps1")) {
+
+            # Separates media details from the folder name.
             $query = Get-FolderString $dirString
             # Uses the details from the string to query OMDb api to fill in the gaps.
-            $rawDetails = Find-MovieDetails $query $apikey
-            # Arrange the movie name detail into the correct format.
-            Format-MovieDetails
-            # Set the folder name to match the movie name and details found.
-            Set-FolderString
+            $rawDetails = Find-MediaDetails $query $apikey
+            # Arrange the media name detail into the correct format.
+            $newString = Format-MediaDetails $rawDetails
+            # Set the folder name to match the media name and details found.
+            Set-FolderString $dirString $newString
         }
     }
 }
