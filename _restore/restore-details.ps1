@@ -346,7 +346,7 @@ function Set-FolderString {
     # Test if the process worked.
     if (Test-Path -Path "$($mediaDir)\$($newName)") {
         # Create a file to indicate the folder has been fixed.
-        New-Item -Path "$($mediaDir)\$($newName)\" -Name "fixed.txt" -ItemType "file"
+        New-Item -Path "$($mediaDir)\$($newName)\" -Name "details.txt" -ItemType "file"
         # Log the success of the folder rename.
         Write-Host "Folder successfully renamed:`nOLD: $($currentDir)`nNEW: $($newName)`n"
     } else {
@@ -367,7 +367,7 @@ function Start-Main {
     # Loop through each media directory 
     foreach ($dirString in (Get-ChildItem -Path $mediaDir -Directory).Name) {
         # If the directory has not been fixed before, run the program to fix it.
-        if (-not (Test-Path "$($mediaDir)$($dirString)fixed.txt" -or Test-Path "$($mediaDir)$($dirString)restore-details.ps1")) {
+        if (-not (Test-Path "$($mediaDir)$($dirString)details.txt" -or Test-Path "$($mediaDir)$($dirString)restore-details.ps1")) {
 
             # Separates media details from the folder name.
             $query = Get-FolderString $dirString
