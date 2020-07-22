@@ -8,7 +8,7 @@
 # -- Global Variables --
 
 # The directory that contains the media folders.
-$mediaDir = "$($PSScriptRoot)..\"
+$mediaDir = "$($PSScriptRoot)\..\"
 
 # The details for OMDb's API.
 $apiURL = "http://www.omdbapi.com/"
@@ -338,7 +338,7 @@ function Set-FolderString {
     )
 
     # If there is no newName then do not rename the folder.
-    if ($newName -ne "") {
+    if ($newName.length -gt 4) {
         # Rename the folder.
         Rename-Item -LiteralPath "$($mediaDir)\$($currentDir)\" -NewName $newName -PassThru
     }
@@ -367,7 +367,7 @@ function Start-Main {
     # Loop through each media directory 
     foreach ($dirString in (Get-ChildItem -Path $mediaDir -Directory).Name) {
         # If the directory has not been fixed before, run the program to fix it.
-        if (-not (Test-Path "$($mediaDir)$($dirString)details.txt" -or Test-Path "$($mediaDir)$($dirString)restore-details.ps1")) {
+        if (-not ((Test-Path "$($mediaDir)$($dirString)\details.txt") -or (Test-Path "$($mediaDir)$($dirString)\restore-details.ps1"))) {
 
             # Separates media details from the folder name.
             $query = Get-FolderString $dirString
