@@ -171,10 +171,17 @@ function Get-FolderName {
         $stringDate
     )
     
-    # Get the index of the date substring from the folder string.
-    $dateIndex = $folderStr.IndexOf($stringDate)
-    # Get substring of anything before the date.
-    $selectedName = $folderStr[0..($dateIndex - 1)] -join('')
+    # If the date was found then anything before it is the selected title.
+    if ($null -ne $stringDate){
+        # Get the index of the date substring from the folder string.
+        $dateIndex = $folderStr.IndexOf($stringDate)
+        # Get substring of anything before the date.
+        $selectedName = $folderStr[0..($dateIndex - 1)] -join('')
+    }
+    # If the date could not be found, the whole folder name is the selected title.
+    else {
+        $selectedName = $folderStr
+    }
 
     # Return the name found.
     return $selectedName
@@ -198,10 +205,17 @@ function Get-FolderString {
     # Get the name of the media to query from the folder string.
     $dirDetails["Title"] = Get-FolderName $cleanStr $dirDetails.Date
     
+    # If the date could not be found display this.
+    if ($null -ne $dirDetails.Date) {
+        $displayDate = "?"
+    } else {
+        $displayDate = $dirDetails.Date
+    }
+
     # Log the findings.
     Write-Host "Original folder name: $($dirString)"
     Write-Host "Extracted title: $($dirDetails.Title)"
-    Write-Host "Extracted date: $($dirDetails.Date)`n"
+    Write-Host "Extracted date: $($displayDate)`n"
 
     # Return the hashtable of directory details to be queried.
     $dirDetails
@@ -220,6 +234,10 @@ function Find-MediaDetails {
 
     # Split the media title into each word.
     $titleSubStrs = $query.Title -split' '
+    # If the date could not be found then remove it from the search.
+    if ($selectedDate -eq "") {
+        $selectedDate = ""
+    }
 
     # Find a list of medias to compare to.
     # Loop through each of the title parts.
@@ -259,6 +277,10 @@ function Find-MediaDetails {
 
         # Score each title found in the search.
         foreach ($apiTitle in $apiTitles) {
+            # Get the imdb ID of the selected omdb media.
+            $testID = ($selectedResult.search | Where-Object { $_.Title -eq $apiTitle }).imdbID
+            # Array to collect matched words.
+            $matchedAPIwords = @()
             # Remove unwanted special characters from the title.
             $cleanAPItitle = $apiTitle -replace "[^a-zA-Z\d]"
             # Split the title into it's substring words.
@@ -267,17 +289,19 @@ function Find-MediaDetails {
             # Try matching each word against the provided media title.
             foreach ($apiWord in $apiWords) {
                 # If the word from the api title matches the title on the folder, score a point.
-                if ($titleSubStrs -contains $apiWord) {
-
-                    # Get the imdb ID of the selected omdb media.
-                    $testID = ($selectedResult.search | Where-Object { $_.Title -eq $apiTitle }).imdbID
+                if (($titleSubStrs -contains $apiWord) -and ($matchedAPIwords -notcontains $apiWord)) {
 
                     # If the score property already exists then add to it.
-                    if ($scores[$testID]) { $scores[$testID] = $scores[$testID] + 1 }
+                    if ($scores[$testID]) { $scores[$testID] += + 1 }
                     # Otherwise, initiate the score under the imdbID.
                     else { $scores.Add($testID, 1) }
                 }
             }
+
+            # Store the difference in the number of matches and the words in the apiTitle.
+            $matchDiff = $matchedAPIwords.Count - $apiWords.Count
+            # Add the difference to the score of the title.
+            $scores[$testID] += $matchDiff
         }
 
         # Find the highest scoring title's imdb ID.
