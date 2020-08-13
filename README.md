@@ -30,7 +30,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
 
 ## Usage
 - Right click the script file ```restore-details.ps1```, select ```Run with PowerShell```.
-- The program will ask for an OMDb API Key on first run, after which it will remember it.
+- The program will ask for an OMDb API Key on first run, after which it will remember.
 
 ## Latest Version
 
