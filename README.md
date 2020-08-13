@@ -1,6 +1,4 @@
 # Media Name Restorer
-
-## Description
 Corrects titles for folders containing entertainment media like movies and shows.
 Queries OMDb's API for details on the media based on what information the incorrect title currently displays.
 
